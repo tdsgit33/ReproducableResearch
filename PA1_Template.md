@@ -1,32 +1,20 @@
----
-title: "Reproducable Research: Peer Assessment Project 1"
-output: github_document
----
+Reproducable Research: Peer Assessment Project 1
+================
 
 September 6, 2018
 
-This assignment makes use of data from a personal activity monitoring device. This device collects data at
-5 minute intervals through out the day. The data consists of two months of data from an anonymous individual
-collected during the months of October and November, 2012 and include the number of steps taken in 5 minute
-intervals each day.
+This assignment makes use of data from a personal activity monitoring device. This device collects data at 5 minute intervals through out the day. The data consists of two months of data from an anonymous individual collected during the months of October and November, 2012 and include the number of steps taken in 5 minute intervals each day.
 
-This assignment allow us to practice using R Markdown by completing and documenting a number of analyses on 
-this data set using R Markdown.
- 
+This assignment allow us to practice using R Markdown by completing and documenting a number of analyses on this data set using R Markdown.
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+Read the raw data
+-----------------
 
-```
-
-## Read the raw data
 Download the raw data from here: [Activity Monitoring Data](https://d396qusza40orc.cloudfront.net/repdata%2Fdata%2Factivity.zip)
 
-Once downloaded, save it to your working directory.  The code below goes to my working directory to look
-for the file.  If found, the raw data is loaded into the variable 'actdat'.
+Once downloaded, save it to your working directory. The code below goes to my working directory to look for the file. If found, the raw data is loaded into the variable 'actdat'.
 
-
-```{r, echo = TRUE}
+``` r
 infile <- paste("C:/Users/TODSAUNDERS/Documents/R/","activity.csv", sep="")
 if (!file.exists(infile)) {
   print(infile)
@@ -38,11 +26,14 @@ if (!file.exists(infile)) {
 }
 ```
 
-## Step 2: Histogram of total number of steps taken each day
+    ## [1] "Attempting to read file."
+
+Step 2: Histogram of total number of steps taken each day
+---------------------------------------------------------
 
 This block of code sums the number of steps by day (after removing the NAs), then creates a histogram of the results.
 
-```{r, echo = TRUE}
+``` r
 ##  Step 2: Histogram of total number of steps taken each day
 
 ## Sum the number of steps by day
@@ -52,32 +43,38 @@ colnames(stepsbyday) <- c("date", "steps")
 
 Now build a histogram of the number of steps by day.
 
-```{r, echo = TRUE}
+``` r
 hist(stepsbyday$steps, col="blue", xlab = "Total Steps",ylab = "Frequency",main = "Total Number of Steps per Day")
 ```
 
+![](PA1_Template_files/figure-markdown_github/unnamed-chunk-3-1.png)
+
 The histogram appears to show that most walking occurs during the middle of the 24 hour period, i.e., during the day, as expected, but the high frequency during the early morning hours is puzzling.
 
-
-## Step 3: Mean and median number of steps taken each day
+Step 3: Mean and median number of steps taken each day
+------------------------------------------------------
 
 Next, let's look at the mean number of steps per day
 
-```{r, echo = TRUE}
+``` r
 ## Step 3: Mean and median number of steps taken each day
 mean(stepsbyday$steps)
 ```
 
+    ## [1] 9354.23
 
 And here is the median number of steps per day.
 
-```{r, echo = TRUE}
+``` r
 median(stepsbyday$steps)
 ```
 
-## Step 4: Time series plot of the average number of steps taken
+    ## [1] 10395
 
-```{r, echo = TRUE}
+Step 4: Time series plot of the average number of steps taken
+-------------------------------------------------------------
+
+``` r
 ## Step 4: Time series plot of the average number of steps taken
 actdatclean <- actdat[complete.cases(actdat),]
 avgbyinterval <- aggregate(actdatclean$steps,by=list(actdatclean$interval), mean)
@@ -85,24 +82,34 @@ colnames(avgbyinterval) <- c("interval", "avgsteps")
 plot(avgbyinterval$avgsteps ~ avgbyinterval$interval, type = "l", xlab = "5-Minute Interval",ylab = "Average Steps")
 ```
 
-## Step 5: Interval with max average steps
+![](PA1_Template_files/figure-markdown_github/unnamed-chunk-6-1.png)
+
+Step 5: Interval with max average steps
+---------------------------------------
 
 The interval with the maximum average number of steps is show here.
 
-```{r, echo = TRUE}
+``` r
 ## Step 5: Interval with max average steps
 avgbyinterval[avgbyinterval$avgsteps==max(avgbyinterval$avgsteps),1]
 ```
 
-## Step 6: Imputing missing data
+    ## [1] 835
 
-There are quite a few days worth of data missing in our data set, so we will impute values to replace the missing data.  The imputed values will be the average of the the existing data in other days for that interval.
+Step 6: Imputing missing data
+-----------------------------
 
-```{r, echo = TRUE}
+There are quite a few days worth of data missing in our data set, so we will impute values to replace the missing data. The imputed values will be the average of the the existing data in other days for that interval.
+
+``` r
 ## Step 6: Imputing missing data
 ## Number of records containing NA
 nrow(actdat[is.na(actdat$steps),])
+```
 
+    ## [1] 2304
+
+``` r
 ## Don't want to change my original data set, actdat, so am creating a new data set to work with
 actdatfull <- actdat
 ## Loop through each row.  If NA is found, replace the NA with the average value for that interval
@@ -119,24 +126,26 @@ stepsbydayfull <- aggregate(actdatfull$steps,by=list(actdatfull$date), sum, na.r
 colnames(stepsbydayfull) <- c("date", "steps")
 ```
 
-
-
-## Step 7: Histogram including imputed values
+Step 7: Histogram including imputed values
+------------------------------------------
 
 Now we will recreate the same histogram from Step 1 but with the full data set that includes the imputed values
 
-```{r, echo = TRUE}
+``` r
 ## Step 7: Histogram including imputed values
 hist(stepsbydayfull$steps, col="green", xlab = "Total Steps",ylab = "Frequency",main = "Total Number of Steps per Day")
 ```
 
+![](PA1_Template_files/figure-markdown_github/unnamed-chunk-9-1.png)
+
 When compared to the first histogram, this show that the missing data could lead to a misunderstanding of the data, especially during the early morning intervals.
 
-## Step 8: Weekdays vs Weekends
+Step 8: Weekdays vs Weekends
+----------------------------
 
-Our next analysis compares weekend activity to weekday activity.  This block of code breaks our file into two data sets; one each for weekends and weekdays.  Once the data sets are created, a chart with two plots showing weekend and weekday activity is created.
+Our next analysis compares weekend activity to weekday activity. This block of code breaks our file into two data sets; one each for weekends and weekdays. Once the data sets are created, a chart with two plots showing weekend and weekday activity is created.
 
-```{r, echo = TRUE}
+``` r
 ## Step 8: Weekdays vs Weekends
 par(mfrow=c(2,1),mar=c(4,4,2,1))
 
@@ -159,7 +168,8 @@ colnames(avgbyintwend) <- c("interval", "avgsteps")
 plot(avgbyintwend$avgsteps ~ avgbyintwend$interval, type = "l", main = "Weekend", xlab = "5-Minute Interval",ylab = "Average Steps")
 ```
 
-Doing a visual comparison of the two charts, we see that more steps are taken during the day on weekend days than during the day of weekdays.  Our data gatherers might have desk jobs! 
+![](PA1_Template_files/figure-markdown_github/unnamed-chunk-10-1.png)
 
-This completes our analysis and our first R_Markdown project!
+Doing a visual comparison of the two charts, we see that more steps are taken during the day on weekend days than during the day of weekdays. Our data gatherers might have desk jobs!
 
+This completes our analysis and our first R\_Markdown project!
